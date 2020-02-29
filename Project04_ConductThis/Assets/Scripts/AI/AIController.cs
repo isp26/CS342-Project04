@@ -7,6 +7,7 @@ public class AIController : MonoBehaviour
     private AIDestinationSetter direction;
     private GameObject patrolLocation;
     private GameObject player;
+    private PlayerController playerScript;
 
     private bool waitStat;
     private bool patrolStat;
@@ -17,12 +18,14 @@ public class AIController : MonoBehaviour
     public GameObject patrolObject;
     public int myHealth;
     public float mySpeed;
+    public string AI_Type;
     
 
     private void Awake() {
         path = this.gameObject.GetComponent<AIPath>();
         direction = this.gameObject.GetComponent<AIDestinationSetter>();
         player = GameObject.FindGameObjectsWithTag("Player")[0];
+        playerScript = player.GetComponent<PlayerController>();
 
         path.maxSpeed = mySpeed;
 
@@ -36,6 +39,18 @@ public class AIController : MonoBehaviour
     }
 
     private void Update() {
+        if (myHealth <= 0 ) {
+            if(string.Compare("Normal", AI_Type) == 0) {
+                gameController.numberOfNormalAI -= 1;
+                playerScript.playerScore += 100;
+            }
+            else {
+                gameController.numberOfHardAI -= 1;
+                playerScript.playerScore += 150;
+            }
+            Destroy(this.gameObject);
+        }
+
         if(patrolLocation != null) {
             if (this.gameObject.transform.position == patrolLocation.transform.position && !huntStat) {
                 huntStat = false;
@@ -67,7 +82,7 @@ public class AIController : MonoBehaviour
             waiting();
         }
         else {
-            Debug.Log("Normal AI error on stat controller");
+            Debug.Log("AI error on stat controller");
         }
     }
 
@@ -92,8 +107,8 @@ public class AIController : MonoBehaviour
     }
 
     private void OnCollisionEnter2D(Collision2D collision) {
-        if (string.Compare("Player", collision.transform.tag) == 0) {
-            Debug.Log("Hurt Player here!");
+        if (string.Compare("Bullet", collision.transform.tag) == 0) {
+            Debug.Log("Hurt player here!");
         }
     }
 
