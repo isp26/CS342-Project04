@@ -109,6 +109,8 @@ public class AIController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision) {
         if (string.Compare("Bullet", collision.transform.tag) == 0) {
             Debug.Log("Hurt player here!");
+            myHealth -= 30;
+            Debug.Log(myHealth);
         }
     }
 
