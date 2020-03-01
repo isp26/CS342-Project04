@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer myRenderer;
     private float currentTimer;
     private float iFrameTimer;
+
+    private bool isShaking = false;
+    private float shakeAmount = 5f;
 
     private void Awake() {
         currentTimer = 0.0f;
@@ -37,8 +41,19 @@ public class PlayerController : MonoBehaviour
         if(myHealth <= 0) {
             Destroy(this.gameObject);
         }
+        else
+        {
+            healthbar.value = myHealth / maxHealth;
+        }
 
-        
+        if (isShaking)
+        {
+            Vector2 newPosition = Random.insideUnitCircle * (Time.deltaTime * shakeAmount);
+            newPosition.x = transform.position.x;
+            newPosition.y = transform.position.y;
+
+            transform.position = newPosition;
+        }
     }
 
     void FixedUpdate()
@@ -52,6 +67,11 @@ public class PlayerController : MonoBehaviour
         Vector2 lookDir = mousePos - rb.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         rb.rotation = angle;
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartCoroutine(ShakeNow());
+        }
     }
 
     public void startIFrames() {
@@ -82,5 +102,17 @@ public class PlayerController : MonoBehaviour
             healthbar.value = myHealth / maxHealth;
             Debug.Log(healthbar.value);
         }
+    }
+
+    IEnumerator ShakeNow()
+    {
+        Vector2 originalPosition = transform.position;
+        if (isShaking == false)
+        {
+            isShaking = true;
+        }
+        yield return new WaitForSeconds(2f);
+        isShaking = false;
+        transform.position = originalPosition;
     }
 }
