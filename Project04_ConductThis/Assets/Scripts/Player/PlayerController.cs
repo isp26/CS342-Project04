@@ -3,12 +3,13 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed;
+    public float moveSpeed;
     public float myHealth;
     public float maxHealth;
     public bool canBeHurt;
     public int playerScore;
     public Slider healthbar;
+    public Camera cam;
 
     private Rigidbody2D rb;
     private SpriteRenderer myRenderer;
@@ -28,7 +29,7 @@ public class PlayerController : MonoBehaviour
         myRenderer = this.gameObject.GetComponent<SpriteRenderer>();
     }
 
-    private void Update() {
+    void Update() {
         if (!canBeHurt) {
             endIframe();
         }
@@ -36,6 +37,8 @@ public class PlayerController : MonoBehaviour
         if(myHealth <= 0) {
             Destroy(this.gameObject);
         }
+
+        
     }
 
     void FixedUpdate()
@@ -43,7 +46,12 @@ public class PlayerController : MonoBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
         Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-        rb.AddForce(movement * speed);
+        rb.MovePosition(rb.position + movement * moveSpeed *Time.fixedDeltaTime);
+
+        Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 lookDir = mousePos - rb.position;
+        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+        rb.rotation = angle;
     }
 
     public void startIFrames() {
