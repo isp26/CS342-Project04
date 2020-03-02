@@ -17,6 +17,18 @@ public class PlayerController : MonoBehaviour
     private float currentTimer;
     private float iFrameTimer;
 
+    public int lightningBoltsCollected = 0;
+    public int batteriesCollected = 0;
+    public int drillsCollected = 0;
+
+    public GameObject battsCollected;
+    private Text battText;
+    public GameObject boltsCollected;
+    private Text boltText;
+    public GameObject drillCollected;
+    private Text drillsText;
+
+
     private bool isShaking = false;
     private float shakeAmount = 5f;
 
@@ -31,6 +43,10 @@ public class PlayerController : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         myRenderer = this.gameObject.GetComponent<SpriteRenderer>();
+
+        battText = battsCollected.GetComponent<Text>();
+        boltText = boltsCollected.GetComponent<Text>();
+        drillsText = drillCollected.GetComponent<Text>();
     }
 
     void Update() {
@@ -54,6 +70,13 @@ public class PlayerController : MonoBehaviour
 
             transform.position = newPosition;
         }
+    }
+
+    void LateUpdate()
+    {
+        boltText.text = lightningBoltsCollected.ToString();
+        battText.text = batteriesCollected.ToString();
+        drillsText.text = drillsCollected.ToString();
     }
 
     void FixedUpdate()

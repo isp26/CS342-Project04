@@ -16,7 +16,7 @@ public class Batteries : MonoBehaviour
 
     void Pickup(Collider2D player)
     {
-        //Debug.Log("PowerUp Grabbed");
+        player.gameObject.GetComponent<PlayerController>().batteriesCollected += 1;
         PlayerController stats = player.GetComponent<PlayerController>();
         stats.myHealth = 100f;
         Destroy(gameObject);

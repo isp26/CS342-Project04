@@ -5,7 +5,6 @@ using UnityEngine;
 public class Drills : MonoBehaviour
 {
     public GameObject pickupEffect;
-
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -17,6 +16,7 @@ public class Drills : MonoBehaviour
 
     void Pickup(Collider2D player)
     {
+        player.gameObject.GetComponent<PlayerController>().drillsCollected += 1;
         Weapon stats = GameObject.Find("FirePoint").GetComponent<Weapon>();
         stats.maxAmmo += 1;
         Destroy(gameObject);
