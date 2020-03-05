@@ -42,11 +42,11 @@ public class AIController : MonoBehaviour
         if (myHealth <= 0 ) {
             if(string.Compare("Normal", AI_Type) == 0) {
                 gameController.numberOfNormalAI -= 1;
-                playerScript.playerScore += 100;
+                playerScript.playerScore += 50;
             }
             else {
                 gameController.numberOfHardAI -= 1;
-                playerScript.playerScore += 150;
+                playerScript.playerScore += 100;
             }
             Destroy(this.gameObject);
         }

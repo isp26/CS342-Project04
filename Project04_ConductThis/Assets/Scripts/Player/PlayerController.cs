@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed;
+
+    private float baseMovementSpeed;
+    private float currentMovementSpeed;
+
     public float myHealth;
     public float maxHealth;
     public bool canBeHurt;
     public int playerScore;
     public Slider healthbar;
+    public GameObject scoreText;
+    private Text scoreDisplay;
     public Camera cam;
 
     private Rigidbody2D rb;
@@ -17,22 +21,19 @@ public class PlayerController : MonoBehaviour
     private float currentTimer;
     private float iFrameTimer;
 
-    public int lightningBoltsCollected = 0;
-    public int batteriesCollected = 0;
-    public int drillsCollected = 0;
+    public bool lightningBoltsPickup;
+    public bool batteriesPickup;
+    public bool drillsPickup;
 
-    public GameObject battsCollected;
-    private Text battText;
-    public GameObject boltsCollected;
-    private Text boltText;
-    public GameObject drillCollected;
-    private Text drillsText;
-
-
-    private bool isShaking = false;
-    private float shakeAmount = 5f;
+    public float timeSinceLastLightningBoltsPickup;
+    public float timeSinceLastBatteriesPickup;
+    private float intervalHealth;
+    public float timeSinceLastDrillsPickup;
 
     private void Awake() {
+        baseMovementSpeed = 10.0f;
+        currentMovementSpeed = baseMovementSpeed;
+
         currentTimer = 0.0f;
         iFrameTimer = 1.5f;
         canBeHurt = true;
@@ -41,15 +42,17 @@ public class PlayerController : MonoBehaviour
         myHealth = maxHealth;
         healthbar.value = myHealth;
 
+        lightningBoltsPickup = false;
+        drillsPickup = false;
+        batteriesPickup = false;
+        intervalHealth = -100.0f;
+
         rb = GetComponent<Rigidbody2D>();
         myRenderer = this.gameObject.GetComponent<SpriteRenderer>();
-
-        battText = battsCollected.GetComponent<Text>();
-        boltText = boltsCollected.GetComponent<Text>();
-        drillsText = drillCollected.GetComponent<Text>();
+        scoreDisplay = scoreText.GetComponent<Text>();
     }
 
-    void Update() {
+    private void Update() {
         if (!canBeHurt) {
             endIframe();
         }
@@ -62,39 +65,25 @@ public class PlayerController : MonoBehaviour
             healthbar.value = myHealth / maxHealth;
         }
 
-        if (isShaking)
-        {
-            Vector2 newPosition = Random.insideUnitCircle * (Time.deltaTime * shakeAmount);
-            newPosition.x = transform.position.x;
-            newPosition.y = transform.position.y;
-
-            transform.position = newPosition;
-        }
+        pickupEffects();
     }
 
-    void LateUpdate()
-    {
-        boltText.text = lightningBoltsCollected.ToString();
-        battText.text = batteriesCollected.ToString();
-        drillsText.text = drillsCollected.ToString();
-    }
-
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
+
         Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-        rb.MovePosition(rb.position + movement * moveSpeed *Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + movement * currentMovementSpeed * Time.fixedDeltaTime);
 
         Vector2 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         Vector2 lookDir = mousePos - rb.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         rb.rotation = angle;
+    }
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartCoroutine(ShakeNow());
-        }
+    private void LateUpdate() {
+        scoreDisplay.text = "SCORE: " + playerScore.ToString();
     }
 
     public void startIFrames() {
@@ -118,24 +107,50 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void pickupEffects() {
+        if (lightningBoltsPickup) { //Speed the player up for a time
+            timeSinceLastLightningBoltsPickup += Time.deltaTime;
+            if (timeSinceLastLightningBoltsPickup >= 15.0f) {
+                lightningBoltsPickup = false;
+                timeSinceLastLightningBoltsPickup = 0.0f;
+                currentMovementSpeed = baseMovementSpeed;
+            }
+            else {
+                currentMovementSpeed = 20.0f;
+            }
+        }
+
+        if (batteriesPickup) { //Health the player over time
+            timeSinceLastBatteriesPickup += Time.deltaTime;
+            if (timeSinceLastBatteriesPickup >= 6.0f) {
+                batteriesPickup = false;
+                timeSinceLastBatteriesPickup = 0.0f;
+                intervalHealth = -100.0f;
+            }
+            else {
+                if (Mathf.Floor(timeSinceLastBatteriesPickup) != intervalHealth) { //This is a thing I wrote...
+                    intervalHealth = Mathf.Floor(timeSinceLastBatteriesPickup);
+                    if( myHealth < 100) {
+                        myHealth += 5;
+                    }
+                }
+            }
+        }
+
+        if (drillsPickup) { //Fire an electron beam
+            timeSinceLastDrillsPickup += Time.deltaTime;
+            if (timeSinceLastDrillsPickup >= 3.0f) {
+                drillsPickup = false;
+                timeSinceLastDrillsPickup = 0.0f;
+            }
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision) {
         if(string.Compare("Enemy", collision.gameObject.transform.tag) == 0 && canBeHurt) {
             startIFrames();
             myHealth -= 20f;
             healthbar.value = myHealth / maxHealth;
-            Debug.Log(healthbar.value);
         }
-    }
-
-    IEnumerator ShakeNow()
-    {
-        Vector2 originalPosition = transform.position;
-        if (isShaking == false)
-        {
-            isShaking = true;
-        }
-        yield return new WaitForSeconds(2f);
-        isShaking = false;
-        transform.position = originalPosition;
     }
 }

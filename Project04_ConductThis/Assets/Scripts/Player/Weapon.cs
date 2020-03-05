@@ -1,59 +1,46 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
-
     public Transform firePoint;
     public GameObject bulletPrefab;
+    private PlayerController myPlayer;
 
     public float bulletForce = 20f;
+    private LineRenderer lazer;
 
-    public int maxAmmo = 6;
-    private int currentAmmo;
-    public float reloadTime = 2f;
-    private bool isReloading = false;
-
-    void Start()
-    {
-        currentAmmo = maxAmmo;
+    private void Awake() {
+        myPlayer = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<PlayerController>();
+        lazer = this.gameObject.GetComponent<LineRenderer>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-        if (isReloading)
-            return;
-        if (currentAmmo <= 0 || Input.GetKeyDown(KeyCode.R))
-        {
-            if (currentAmmo == maxAmmo)
-                return;
-            StartCoroutine(Reload());
-            return;
+    private void Update() {
+        if (myPlayer.drillsPickup) { //Fire the lazer
+            lazer.enabled = true;
+            lazer.SetPosition(0, this.gameObject.transform.position);
+            lazer.SetPosition(1, this.gameObject.transform.position + this.gameObject.transform.up * 100.0f);
+            fireLazer();
+        }
+        else {
+            lazer.enabled = false;
         }
         
-        if (Input.GetButtonDown("Fire1"))
-        {
+        if(Input.GetButtonDown("Fire1") && !myPlayer.drillsPickup) {
             Shoot();
         }
 
     }
 
-    IEnumerator Reload()
-    {
-        isReloading = true;
-        Debug.Log("Reloading...");
-        yield return new WaitForSeconds(reloadTime);
-        currentAmmo = maxAmmo;
-        isReloading = false;
+    private void fireLazer() {
+        RaycastHit2D hitInfo = Physics2D.Raycast(this.gameObject.transform.position, this.gameObject.transform.up);
+        Debug.DrawRay(this.transform.position, this.transform.up, Color.green);
+        if (!hitInfo.collider.isTrigger) {
+            AIController enemy = hitInfo.transform.GetComponent<AIController>();
+            enemy.myHealth -= 4;
+        }
     }
 
-    void Shoot()
-    {
-        currentAmmo--;
-
+    private void Shoot() {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         rb.AddForce(firePoint.up * bulletForce, ForceMode2D.Impulse);

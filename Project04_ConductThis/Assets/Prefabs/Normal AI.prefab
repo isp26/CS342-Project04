@@ -180,7 +180,8 @@ MonoBehaviour:
   patrolObject: {fileID: 2725240380761691464, guid: ee10cd0ea823e3141970e37eab32f8d3,
     type: 3}
   myHealth: 50
-  mySpeed: 2
+  mySpeed: 10
+  AI_Type: 
 --- !u!58 &1124541604865226977
 CircleCollider2D:
   m_ObjectHideFlags: 0
