@@ -15,7 +15,7 @@ public class LightningBolts : MonoBehaviour
     void Pickup(Collider2D player)
     {
         player.gameObject.GetComponent<PlayerController>().lightningBoltsPickup = true;
-        player.gameObject.GetComponent<PlayerController>().timeSinceLastLightningBoltsPickup -= 15.0f;
+        player.gameObject.GetComponent<PlayerController>().timeSinceLastLightningBoltsPickup -= 7.0f;
         Destroy(gameObject);
     }
 }

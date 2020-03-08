@@ -31,6 +31,12 @@ public class PlayerController : MonoBehaviour
     public float timeSinceLastDrillsPickup;
     public GameObject gameOver;
 
+    public GameObject rockets;
+    public GameObject healEffect;
+
+    public AudioClip lazerBeamSound;
+    public AudioClip shotsSound;
+
     private void Awake() {
         baseMovementSpeed = 10.0f;
         currentMovementSpeed = baseMovementSpeed;
@@ -112,7 +118,9 @@ public class PlayerController : MonoBehaviour
     private void pickupEffects() {
         if (lightningBoltsPickup) { //Speed the player up for a time
             timeSinceLastLightningBoltsPickup += Time.deltaTime;
-            if (timeSinceLastLightningBoltsPickup >= 15.0f) {
+            rockets.SetActive(true);
+            if (timeSinceLastLightningBoltsPickup >= 0.0f) {
+                rockets.SetActive(false);
                 lightningBoltsPickup = false;
                 timeSinceLastLightningBoltsPickup = 0.0f;
                 currentMovementSpeed = baseMovementSpeed;
@@ -124,7 +132,9 @@ public class PlayerController : MonoBehaviour
 
         if (batteriesPickup) { //Health the player over time            
             timeSinceLastBatteriesPickup += Time.deltaTime;
-            if (timeSinceLastBatteriesPickup >= 6.0f) {
+            healEffect.SetActive(true);
+            if (timeSinceLastBatteriesPickup >= 0.0f) {
+                healEffect.SetActive(false);
                 batteriesPickup = false;
                 timeSinceLastBatteriesPickup = 0.0f;
                 intervalHealth = -100.0f;
@@ -141,7 +151,7 @@ public class PlayerController : MonoBehaviour
 
         if (drillsPickup) { //Fire an electron beam
             timeSinceLastDrillsPickup += Time.deltaTime;
-            if (timeSinceLastDrillsPickup >= 3.0f) {
+            if (timeSinceLastDrillsPickup >= 0.0f) {
                 drillsPickup = false;
                 timeSinceLastDrillsPickup = 0.0f;
             }
