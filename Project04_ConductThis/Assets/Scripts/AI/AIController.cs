@@ -12,15 +12,17 @@ public class AIController : MonoBehaviour
     private bool waitStat;
     private bool patrolStat;
     private bool huntStat;
+    private bool chargingStat;
     private float currentWaitTimer;
     private float maximumWaitTime;
+    private float chargeTimer;
 
     public GameObject patrolObject;
     public float myHealth;
     public float mySpeed;
     public string AI_Type;
     public bool slowed;
-    
+    private float maxChargeTime;
 
     private void Awake() {
         path = this.gameObject.GetComponent<AIPath>();
@@ -35,11 +37,15 @@ public class AIController : MonoBehaviour
             mySpeed = Random.Range(15.0f, 25.0f);
         }
 
+        maxChargeTime = Random.Range(2.0f, 15.0f);
+
         waitStat = true;
         patrolStat = false;
         huntStat = false;
+        chargingStat = false;
         maximumWaitTime = 3.0f;
         currentWaitTimer = 0.0f;
+        chargeTimer = 0.0f;
 
         nextPatrolStat();
     }
@@ -65,38 +71,41 @@ public class AIController : MonoBehaviour
             slowed = false; //This is what happens when you don't have a UML
         }
 
-        if(patrolLocation != null) {
-            if (this.gameObject.transform.position == patrolLocation.transform.position && !huntStat) {
-                huntStat = false;
-                patrolStat = false;
-                waitStat = true;
-            }
-        }
-
-        if (huntStat) {
-            if (player != null) {
-                direction.target = player.transform;
-            }
-            else {
-                huntStat = false;
-                patrolStat = true;
-                waitStat = false;
-            }
-        }
-        else if (patrolStat) {
+        chargePlayer();
+        if (!chargingStat) {
             if (patrolLocation != null) {
-                direction.target = patrolLocation.transform;
+                if (this.gameObject.transform.position == patrolLocation.transform.position && !huntStat) {
+                    huntStat = false;
+                    patrolStat = false;
+                    waitStat = true;
+                }
+            }
+
+            if (huntStat) {
+                if (player != null) {
+                    direction.target = player.transform;
+                }
+                else {
+                    huntStat = false;
+                    patrolStat = true;
+                    waitStat = false;
+                }
+            }
+            else if (patrolStat) {
+                if (patrolLocation != null) {
+                    direction.target = patrolLocation.transform;
+                }
+                else {
+                    nextPatrolStat();
+                    direction.target = patrolLocation.transform;
+                }
+            }
+            else if (waitStat) {
+                waiting();
             }
             else {
-                nextPatrolStat();
-                direction.target = patrolLocation.transform;
+                Debug.Log("AI error on stat controller");
             }
-        }
-        else if (waitStat) {
-            waiting();
-        }
-        else {
-            Debug.Log("AI error on stat controller");
         }
     }
 
@@ -117,6 +126,19 @@ public class AIController : MonoBehaviour
             waitStat = false;
 
             Destroy(patrolLocation);
+        }
+    }
+
+    private void chargePlayer() {
+        int shouldCharge = Mathf.RoundToInt(Random.Range(1.0f, 1001.0f));
+        if(player != null && (shouldCharge == 50 || chargingStat)) {
+            Debug.Log("I'm charging");
+            chargingStat = true;
+            direction.target = player.transform;
+            chargeTimer += Time.deltaTime;
+            if(maxChargeTime <= chargeTimer) {
+                chargingStat = false;
+            }
         }
     }
 
