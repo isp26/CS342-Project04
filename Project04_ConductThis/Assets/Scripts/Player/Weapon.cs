@@ -8,6 +8,9 @@ public class Weapon : MonoBehaviour
 
     public float bulletForce = 20f;
     private LineRenderer lazer;
+    public GameObject hitEffect;
+
+
 
     private void Awake() {
         myPlayer = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<PlayerController>();
@@ -34,9 +37,17 @@ public class Weapon : MonoBehaviour
     private void fireLazer() {
         RaycastHit2D hitInfo = Physics2D.Raycast(this.gameObject.transform.position, this.gameObject.transform.up);
         Debug.DrawRay(this.transform.position, this.transform.up, Color.green);
-        if (!hitInfo.collider.isTrigger) {
-            AIController enemy = hitInfo.transform.GetComponent<AIController>();
-            enemy.myHealth -= 4;
+        if(hitInfo.collider != null) {
+            if (!hitInfo.collider.isTrigger) {
+                GameObject effect = Instantiate(hitEffect, hitInfo.transform.position, hitInfo.transform.rotation);
+                effect.transform.parent = this.gameObject.transform;
+
+                AIController enemy = hitInfo.transform.GetComponent<AIController>();
+                if(enemy != null) {
+                    enemy.myHealth -= 2.0f;
+                    enemy.slowed = true;
+                }
+            }
         }
     }
 

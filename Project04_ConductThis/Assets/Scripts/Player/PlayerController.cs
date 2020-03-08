@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour
     public float timeSinceLastBatteriesPickup;
     private float intervalHealth;
     public float timeSinceLastDrillsPickup;
+    public GameObject gameOver;
 
     private void Awake() {
         baseMovementSpeed = 10.0f;
@@ -58,6 +59,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if(myHealth <= 0) {
+            gameOver.SetActive(true);
             Destroy(this.gameObject);
         }
         else
@@ -120,7 +122,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (batteriesPickup) { //Health the player over time
+        if (batteriesPickup) { //Health the player over time            
             timeSinceLastBatteriesPickup += Time.deltaTime;
             if (timeSinceLastBatteriesPickup >= 6.0f) {
                 batteriesPickup = false;

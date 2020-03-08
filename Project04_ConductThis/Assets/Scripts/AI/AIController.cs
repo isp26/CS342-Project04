@@ -16,9 +16,10 @@ public class AIController : MonoBehaviour
     private float maximumWaitTime;
 
     public GameObject patrolObject;
-    public int myHealth;
+    public float myHealth;
     public float mySpeed;
     public string AI_Type;
+    public bool slowed;
     
 
     private void Awake() {
@@ -27,7 +28,12 @@ public class AIController : MonoBehaviour
         player = GameObject.FindGameObjectsWithTag("Player")[0];
         playerScript = player.GetComponent<PlayerController>();
 
-        path.maxSpeed = mySpeed;
+        if (string.Compare("Normal", AI_Type) == 0) {
+            mySpeed = Random.Range(5.0f, 15.0f);
+        }
+        else {
+            mySpeed = Random.Range(15.0f, 25.0f);
+        }
 
         waitStat = true;
         patrolStat = false;
@@ -39,16 +45,24 @@ public class AIController : MonoBehaviour
     }
 
     private void Update() {
-        if (myHealth <= 0 ) {
+        path.maxSpeed = mySpeed;
+
+        if (myHealth <= 0.0f ) {
             if(string.Compare("Normal", AI_Type) == 0) {
                 gameController.numberOfNormalAI -= 1;
                 playerScript.playerScore += 50;
+                
             }
             else {
                 gameController.numberOfHardAI -= 1;
                 playerScript.playerScore += 100;
             }
             Destroy(this.gameObject);
+        }
+
+        if (slowed) {
+            path.maxSpeed = mySpeed / 2;
+            slowed = false; //This is what happens when you don't have a UML
         }
 
         if(patrolLocation != null) {
@@ -108,9 +122,7 @@ public class AIController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision) {
         if (string.Compare("Bullet", collision.transform.tag) == 0) {
-            Debug.Log("Hurt player here!");
-            myHealth -= 30;
-            Debug.Log(myHealth);
+            myHealth -= 30.0f;
         }
     }
 

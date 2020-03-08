@@ -181,7 +181,8 @@ MonoBehaviour:
     type: 3}
   myHealth: 100
   mySpeed: 20
-  AI_Type: 
+  AI_Type: Hard
+  slowed: 0
 --- !u!58 &1649302180780396933
 CircleCollider2D:
   m_ObjectHideFlags: 0
